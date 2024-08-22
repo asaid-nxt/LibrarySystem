@@ -1,0 +1,42 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/books":
+    get:
+      summary: Retrieves all books
+      tags:
+      - Books
+      parameters:
+      - name: genre
+        in: query
+        description: Genre filter
+        schema:
+          type: string
+      responses:
+        '200':
+          description: books found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    genre:
+                      type: string
+                  required:
+                  - id
+                  - title
+                  - genre
+servers:
+- url: https://{defaultHost}
+  variables:
+    defaultHost:
+      default: www.example.com
