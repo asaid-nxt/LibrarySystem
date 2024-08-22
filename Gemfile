@@ -47,3 +47,4 @@ group :development do
 end
 
 gem 'rswag', '~> 2.14'
+gem 'rack-cors', '~> 2.0', '>= 2.0.2'
