@@ -48,3 +48,4 @@ end
 
 gem 'rswag', '~> 2.14'
 gem 'rack-cors', '~> 2.0', '>= 2.0.2'
+gem 'devise', '~> 4.9', '>= 4.9.4'
