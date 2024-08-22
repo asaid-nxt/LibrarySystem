@@ -6,18 +6,19 @@ info:
 paths:
   "/books":
     get:
-      summary: Retrieves all books
+      summary: Retrieves all books, optionally filtered by genre
       tags:
       - Books
+      description: Retrieves a list of all books. Optionally, you can filter by genre.
       parameters:
       - name: genre
         in: query
-        description: Genre filter
+        description: Filter books by genre
         schema:
           type: string
       responses:
         '200':
-          description: books found
+          description: Books found
           content:
             application/json:
               schema:
@@ -29,14 +30,23 @@ paths:
                       type: integer
                     title:
                       type: string
+                    author:
+                      type: string
                     genre:
                       type: string
+                    isbn:
+                      type: string
+                    available_copies:
+                      type: integer
                   required:
                   - id
                   - title
+                  - author
                   - genre
+                  - isbn
+                  - available_copies
 servers:
-- url: https://{defaultHost}
+- url: https://127.0.0.1:3000
   variables:
     defaultHost:
-      default: www.example.com
+      default: www.127.0.0.1:3000
