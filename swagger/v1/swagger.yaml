@@ -45,6 +45,90 @@ paths:
                   - genre
                   - isbn
                   - available_copies
+  "/users":
+    post:
+      summary: Signs up a user
+      tags:
+      - Users
+      parameters: []
+      responses:
+        '201':
+          description: user created
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: newuser@example.com
+                    password:
+                      type: string
+                      example: password123
+                    password_confirmation:
+                      type: string
+                      example: password123
+                  required:
+                  - email
+                  - password
+                  - password_confirmation
+              required:
+              - user
+  "/users/sign_in":
+    post:
+      summary: Signs in a user
+      tags:
+      - Users
+      parameters: []
+      responses:
+        '200':
+          description: user signed in
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: user@example.com
+                    password:
+                      type: string
+                      example: password123
+                  required:
+                  - email
+                  - password
+              required:
+              - user
+  "/users/sign_out":
+    delete:
+      summary: Signs out a user
+      tags:
+      - Users
+      responses:
+        '204':
+          description: user signed out
+  "/users/me":
+    get:
+      summary: Retrieves current user details
+      tags:
+      - Users
+      responses:
+        '200':
+          description: user details
+        '401':
+          description: unauthorized
 servers:
 - url: http://127.0.0.1:3000/
   variables:
