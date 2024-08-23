@@ -5,6 +5,13 @@ info:
   version: v1
 paths:
   "/admins/sign_in":
+    get:
+      summary: Admin Sign in page
+      tags:
+      - Admin Authentication
+      responses:
+        '200':
+          description: sign in page
     post:
       summary: Admin Sign in
       tags:
@@ -21,18 +28,15 @@ paths:
             schema:
               type: object
               properties:
-                admin:
-                  type: object
-                  properties:
-                    email:
-                      type: string
-                      example: admin@admin.com
-                    password:
-                      type: string
-                      example: admin123
-                  required:
-                  - email
-                  - password
+                email:
+                  type: string
+                  example: admin@admin.com
+                password:
+                  type: string
+                  example: admin123
+              required:
+              - email
+              - password
   "/admins/sign_out":
     delete:
       summary: Admin Sign out
@@ -41,6 +45,220 @@ paths:
       responses:
         '204':
           description: successful sign out
+  "/admins/password/new":
+    get:
+      summary: New password reset page
+      tags:
+      - Admin Authentication
+      responses:
+        '200':
+          description: password reset page
+  "/admins/password/edit":
+    get:
+      summary: Edit password page
+      tags:
+      - Admin Authentication
+      responses:
+        '200':
+          description: edit password page
+  "/admins/password":
+    post:
+      summary: Send reset password instructions
+      tags:
+      - Admin Authentication
+      parameters: []
+      responses:
+        '200':
+          description: password reset email sent
+        '404':
+          description: email not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: admin@admin.com
+              required:
+              - email
+    patch:
+      summary: Update password
+      tags:
+      - Admin Authentication
+      parameters: []
+      responses:
+        '200':
+          description: password updated
+        '422':
+          description: unprocessable entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reset_password_token:
+                  type: string
+                  example: reset-token
+                password:
+                  type: string
+                  example: newpassword
+                password_confirmation:
+                  type: string
+                  example: newpassword
+              required:
+              - reset_password_token
+              - password
+              - password_confirmation
+    put:
+      summary: Update password
+      tags:
+      - Admin Authentication
+      parameters: []
+      responses:
+        '200':
+          description: password updated
+        '422':
+          description: unprocessable entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reset_password_token:
+                  type: string
+                  example: reset-token
+                password:
+                  type: string
+                  example: newpassword
+                password_confirmation:
+                  type: string
+                  example: newpassword
+              required:
+              - reset_password_token
+              - password
+              - password_confirmation
+  "/admins/sign_up":
+    get:
+      summary: New registration page
+      tags:
+      - Admin Authentication
+      responses:
+        '200':
+          description: registration page
+    post:
+      summary: Create admin
+      tags:
+      - Admin Authentication
+      parameters: []
+      responses:
+        '201':
+          description: successful registration
+        '422':
+          description: unprocessable entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: newadmin@admin.com
+                password:
+                  type: string
+                  example: password
+                password_confirmation:
+                  type: string
+                  example: password
+              required:
+              - email
+              - password
+              - password_confirmation
+  "/admins/cancel":
+    get:
+      summary: Cancel registration page
+      tags:
+      - Admin Authentication
+      responses:
+        '200':
+          description: cancel registration page
+  "/admins/edit":
+    get:
+      summary: Edit registration page
+      tags:
+      - Admin Authentication
+      responses:
+        '200':
+          description: edit registration page
+    patch:
+      summary: Update admin
+      tags:
+      - Admin Authentication
+      parameters: []
+      responses:
+        '200':
+          description: admin updated
+        '422':
+          description: unprocessable entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: updatedadmin@example.com
+                password:
+                  type: string
+                  example: newpassword
+                password_confirmation:
+                  type: string
+                  example: newpassword
+              required:
+              - email
+              - password
+              - password_confirmation
+    put:
+      summary: Update admin
+      tags:
+      - Admin Authentication
+      parameters: []
+      responses:
+        '200':
+          description: admin updated
+        '422':
+          description: unprocessable entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: updatedadmin@example.com
+                password:
+                  type: string
+                  example: newpassword
+                password_confirmation:
+                  type: string
+                  example: newpassword
+              required:
+              - email
+              - password
+              - password_confirmation
+    delete:
+      summary: Delete admin
+      tags:
+      - Admin Authentication
+      responses:
+        '204':
+          description: admin deleted
   "/books":
     get:
       summary: Retrieves all books, optionally filtered by genre
@@ -82,87 +300,232 @@ paths:
                   - genre
                   - isbn
                   - available_copies
-  "/users":
-    post:
-      summary: Signs up a user
+  "/users/sign_in":
+    get:
+      summary: User Sign in page
       tags:
-      - Users
+      - User Authentication
+      responses:
+        '200':
+          description: sign in page
+    post:
+      summary: User Sign in
+      tags:
+      - User Authentication
+      parameters: []
+      responses:
+        '200':
+          description: successful sign in
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: password
+              required:
+              - email
+              - password
+  "/users/sign_out":
+    delete:
+      summary: User Sign out
+      tags:
+      - User Authentication
+      responses:
+        '204':
+          description: successful sign out
+  "/users/password/new":
+    get:
+      summary: New password reset page
+      tags:
+      - User Authentication
+      responses:
+        '200':
+          description: password reset page
+  "/users/password/edit":
+    get:
+      summary: Edit password page
+      tags:
+      - User Authentication
+      responses:
+        '200':
+          description: edit password page
+  "/users/password":
+    post:
+      summary: Send reset password instructions
+      tags:
+      - User Authentication
+      parameters: []
+      responses:
+        '200':
+          description: password reset email sent
+        '404':
+          description: email not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+              required:
+              - email
+    patch:
+      summary: Update password
+      tags:
+      - User Authentication
+      parameters: []
+      responses:
+        '200':
+          description: password updated
+        '422':
+          description: unprocessable entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reset_password_token:
+                  type: string
+                  example: reset-token
+                password:
+                  type: string
+                  example: newpassword
+                password_confirmation:
+                  type: string
+                  example: newpassword
+              required:
+              - reset_password_token
+              - password
+              - password_confirmation
+    put:
+      summary: Update password
+      tags:
+      - User Authentication
+      parameters: []
+      responses:
+        '200':
+          description: password updated
+        '422':
+          description: unprocessable entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reset_password_token:
+                  type: string
+                  example: reset-token
+                password:
+                  type: string
+                  example: newpassword
+                password_confirmation:
+                  type: string
+                  example: newpassword
+              required:
+              - reset_password_token
+              - password
+              - password_confirmation
+  "/users/sign_up":
+    get:
+      summary: New registration page
+      tags:
+      - User Authentication
+      responses:
+        '200':
+          description: registration page
+    post:
+      summary: Create user
+      tags:
+      - User Authentication
       parameters: []
       responses:
         '201':
-          description: user created
+          description: successful registration
         '422':
-          description: invalid request
+          description: unprocessable entity
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                user:
-                  type: object
-                  properties:
-                    email:
-                      type: string
-                      example: newuser@example.com
-                    password:
-                      type: string
-                      example: password123
-                  required:
-                  - email
-                  - password
-                  - password_confirmation
+                email:
+                  type: string
+                  example: newuser@example.com
+                password:
+                  type: string
+                  example: password
+                password_confirmation:
+                  type: string
+                  example: password
               required:
-              - user
-  "/users/sign_in":
-    post:
-      summary: Signs in a user
+              - email
+              - password
+              - password_confirmation
+  "/users/cancel":
+    get:
+      summary: Cancel registration page
       tags:
-      - Users
+      - User Authentication
+      responses:
+        '200':
+          description: cancel registration page
+  "/users/edit":
+    get:
+      summary: Edit registration page
+      tags:
+      - User Authentication
+      responses:
+        '200':
+          description: edit registration page
+    patch:
+      summary: Update user
+      tags:
+      - User Authentication
       parameters: []
       responses:
         '200':
-          description: user signed in
-        '401':
-          description: unauthorized
+          description: user updated
+        '422':
+          description: unprocessable entity
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                user:
-                  type: object
-                  properties:
-                    email:
-                      type: string
-                      example: user@example.com
-                    password:
-                      type: string
-                      example: password123
-                  required:
-                  - email
-                  - password
+                email:
+                  type: string
+                  example: updateduser@example.com
+                password:
+                  type: string
+                  example: newpassword
+                password_confirmation:
+                  type: string
+                  example: newpassword
               required:
-              - user
-  "/users/sign_out":
+              - email
+              - password
+              - password_confirmation
     delete:
-      summary: Signs out a user
+      summary: Delete user
       tags:
-      - Users
+      - User Authentication
       responses:
         '204':
-          description: user signed out
-  "/users/me":
-    get:
-      summary: Retrieves current user details
-      tags:
-      - Users
-      responses:
-        '200':
-          description: user details
-        '401':
-          description: unauthorized
+          description: user deleted
 servers:
 - url: http://127.0.0.1:3000/
   variables:
