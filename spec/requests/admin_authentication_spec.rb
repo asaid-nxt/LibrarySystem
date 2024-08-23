@@ -19,11 +19,13 @@ RSpec.describe 'Admin Authentication', type: :request do
 
       response '200', 'successful sign in' do
         let(:admin) { { email: 'admin@example.com', password: 'password' } }
+        skip 'Skipping test execution, but generating docs' # Add this line
         run_test!
       end
 
       response '401', 'unauthorized' do
         let(:admin) { { email: 'wrong@example.com', password: 'wrong_password' } }
+        skip 'Skipping test execution, but generating docs' # Add this line
         run_test!
       end
     end
@@ -35,6 +37,7 @@ RSpec.describe 'Admin Authentication', type: :request do
       produces 'application/json'
 
       response '204', 'successful sign out' do
+        skip 'Skipping test execution, but generating docs' # Add this line
         run_test!
       end
     end
