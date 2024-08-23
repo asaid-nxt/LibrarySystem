@@ -20,6 +20,19 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, json_response.length
   end
 
+  # Test case for showing a specific book
+  test "should show a specific book" do
+    get book_url(@fiction_book), as: :json
+    assert_response :success
+
+    json_response = JSON.parse(response.body)
+    assert_equal @fiction_book.title, json_response["title"]
+    assert_equal @fiction_book.author, json_response["author"]
+    assert_equal @fiction_book.genre, json_response["genre"]
+    assert_equal @fiction_book.isbn, json_response["isbn"]
+    assert_equal @fiction_book.available_copies, json_response["available_copies"]
+  end
+
   # Test case for filtering books by genre
   test "should get books filtered by genre" do
     get books_url(genre: "Fiction"), as: :json

@@ -1,10 +1,14 @@
 class BooksController < ApplicationController
-  before_action :set_book, only: [:edit, :update, :destroy]
+  before_action :set_book, only: [:edit, :update, :destroy, :show]
   before_action :authenticate_admin!, only: [:create, :edit, :update, :destroy]
 
   def index
     @books = Book.by_genre(params[:genre])
     render json: @books
+  end
+
+  def show
+    render json: @book
   end
 
   def new
