@@ -4,6 +4,38 @@ info:
   title: API V1
   version: v1
 paths:
+  "/admins/sign_in":
+    post:
+      summary: Admin Sign in
+      tags:
+      - Admin Authentication
+      parameters: []
+      responses:
+        '200':
+          description: successful sign in
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+              - email
+              - password
+  "/admins/sign_out":
+    delete:
+      summary: Admin Sign out
+      tags:
+      - Admin Authentication
+      responses:
+        '204':
+          description: successful sign out
   "/books":
     get:
       summary: Retrieves all books, optionally filtered by genre
