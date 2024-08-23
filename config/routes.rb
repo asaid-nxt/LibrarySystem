@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
   devise_for :admins, skip: [:registrations, :passwords]
-  devise_for :users, controllers: { sessions: 'users/sessions' }
+  devise_for :users, controllers: {
+  sessions: 'users/sessions',
+  registrations: 'users/registrations'
+}
+
   mount Rswag::Ui::Engine => '/api-docs'
   mount Rswag::Api::Engine => '/api-docs'
   resources :books
