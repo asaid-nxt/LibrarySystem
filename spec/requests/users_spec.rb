@@ -16,8 +16,7 @@ RSpec.describe 'Users API', type: :request do
             type: :object,
             properties: {
               email: { type: :string, example: 'newuser@example.com' },
-              password: { type: :string, example: 'password123' },
-              password_confirmation: { type: :string, example: 'password123' }
+              password: { type: :string, example: 'password123' }
             },
             required: ['email', 'password', 'password_confirmation']
           }
@@ -26,12 +25,12 @@ RSpec.describe 'Users API', type: :request do
       }
 
       response '201', 'user created' do
-        let(:user) { { user: { email: 'newuser@example.com', password: 'password123', password_confirmation: 'password123' } } }
+        let(:user) { { user: { email: 'newuser@example.com', password: 'password123'} } }
         skip 'Skipping test execution, only generating docs'
       end
 
       response '422', 'invalid request' do
-        let(:user) { { user: { email: 'newuser@example.com', password: 'password123', password_confirmation: 'mismatch' } } }
+        let(:user) { { user: { email: 'newuser@example.com', password: 'password123'} } }
         skip 'Skipping test execution, only generating docs'
       end
     end
