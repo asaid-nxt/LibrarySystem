@@ -300,6 +300,134 @@ paths:
                   - genre
                   - isbn
                   - available_copies
+    post:
+      summary: Creates a new book
+      tags:
+      - Books
+      description: Creates a new book entry.
+      parameters: []
+      responses:
+        '201':
+          description: Book created
+        '422':
+          description: Invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: The Great Gatsby
+                author:
+                  type: string
+                  example: F. Scott Fitzgerald
+                genre:
+                  type: string
+                  example: Novel
+                isbn:
+                  type: string
+                  example: '9780743273565'
+                available_copies:
+                  type: integer
+                  example: 10
+              required:
+              - title
+              - author
+              - genre
+              - isbn
+              - available_copies
+  "/books/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: ID of the book
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Retrieves a specific book
+      tags:
+      - Books
+      description: Retrieves a specific book by its ID.
+      responses:
+        '200':
+          description: Book found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  author:
+                    type: string
+                  genre:
+                    type: string
+                  isbn:
+                    type: string
+                  available_copies:
+                    type: integer
+                required:
+                - id
+                - title
+                - author
+                - genre
+                - isbn
+                - available_copies
+        '404':
+          description: Book not found
+    patch:
+      summary: Updates a specific book
+      tags:
+      - Books
+      description: Updates a specific book by its ID.
+      parameters: []
+      responses:
+        '200':
+          description: Book updated
+        '422':
+          description: Invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: The Great Gatsby Updated
+                author:
+                  type: string
+                  example: F. Scott Fitzgerald
+                genre:
+                  type: string
+                  example: Novel
+                isbn:
+                  type: string
+                  example: '9780743273565'
+                available_copies:
+                  type: integer
+                  example: 15
+              required:
+              - title
+              - author
+              - genre
+              - isbn
+              - available_copies
+    delete:
+      summary: Deletes a specific book
+      tags:
+      - Books
+      description: Deletes a specific book by its ID.
+      responses:
+        '204':
+          description: Book deleted
+        '404':
+          description: Book not found
   "/users/sign_in":
     get:
       summary: User Sign in page
