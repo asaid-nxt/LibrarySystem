@@ -1,4 +1,3 @@
-# app/controllers/admins/registrations_controller.rb
 class Admins::RegistrationsController < Devise::RegistrationsController
   respond_to :json
 
@@ -8,7 +7,14 @@ class Admins::RegistrationsController < Devise::RegistrationsController
     if admin.save
       render json: { message: "Signed up successfully.", admin: admin }, status: :created
     else
-      render json: { error: admin.errors.full_messages.to_sentence }, status: :unprocessable_entity
+      render json: { error: admin.errors.full_messages.join(', ') }, status: :unprocessable_entity
     end
+  end
+
+  private
+
+  # Only allow a list of trusted parameters through.
+  def sign_up_params
+    params.require(:admin).permit(:email, :password, :password_confirmation)
   end
 end

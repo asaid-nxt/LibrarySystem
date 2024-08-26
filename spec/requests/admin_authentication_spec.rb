@@ -1,52 +1,63 @@
-# spec/integration/admin_authentication_spec.rb
+# spec/requests/admin_authentication_spec.rb
 require 'swagger_helper'
+include Warden::Test::Helpers
 
 RSpec.describe 'Admin Authentication', type: :request do
 
-  before do
-    # Stubbing the requests to skip actual execution
-    allow_any_instance_of(ActionDispatch::Integration::Session).to receive(:post).and_return(true)
-    allow_any_instance_of(ActionDispatch::Integration::Session).to receive(:delete).and_return(true)
-    allow_any_instance_of(ActionDispatch::Integration::Session).to receive(:patch).and_return(true)
-    allow_any_instance_of(ActionDispatch::Integration::Session).to receive(:put).and_return(true)
-  end
+  include Devise::Test::IntegrationHelpers
+  # Define admin credentials
+  let(:admin_email) { 'admin@example.com' }
+  let(:admin_password) { 'password123' }
+
+  # Create an admin before running tests
+  let!(:admin) { Admin.create!(email: admin_email, password: admin_password) }
 
   path '/admins/sign_in' do
-    get 'Admin Sign in page' do
-      tags 'Admin Authentication'
-      produces 'application/json'
-
-      response '200', 'sign in page' do
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-    end
-
     post 'Admin Sign in' do
       tags 'Admin Authentication'
       consumes 'application/json'
       produces 'application/json'
       parameter name: :admin, in: :body, schema: {
-        type: :object,
-        properties: {
-          email: { type: :string, example: 'admin@admin.com' },
-          password: { type: :string, example: 'admin123' }
-        },
-        required: ['email', 'password']
-      }
+                type: :object,
+                properties: {
+                  admin: {
+                    type: :object,
+                    properties: {
+                      email: { type: :string, example: 'admin@example.com' },
+                      password: { type: :string, example: 'password' }
+                    },
+                    required: ['email', 'password']
+                  }
+                },
+                required: ['admin']
+              }
 
       response '200', 'successful sign in' do
-        let(:admin) { { email: 'admin@example.com', password: 'password' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+        let(:sign_in_admin) { { email: admin_email, password: admin_password } }
+
+        before do
+          post '/admins/sign_in', params: { admin: sign_in_admin }, as: :json
+        end
+
+        it 'returns a success message and admin details' do
+          expect(response).to have_http_status(:ok)
+          json_response = JSON.parse(response.body)
+          expect(['Logged in successfully.', 'You are already signed in.']).to include(json_response['message'])
+          expect(json_response['admin']['email']).to eq(admin_email) if json_response['message'] == 'Logged in successfully.'
         end
       end
 
       response '401', 'unauthorized' do
-        let(:admin) { { email: 'wrong@example.com', password: 'wrong_password' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+        let(:sign_in_admin) { { email: 'wrongadmin@example.com', password: 'wrongpassword' } }
+
+        before do
+          post '/admins/sign_in', params: { admin: sign_in_admin }, as: :json
+        end
+
+        it 'returns an error message' do
+          expect(response).to have_http_status(:unauthorized)
+          json_response = JSON.parse(response.body)
+          expect(json_response['error']).to eq('Invalid email or password')
         end
       end
     end
@@ -57,35 +68,16 @@ RSpec.describe 'Admin Authentication', type: :request do
       tags 'Admin Authentication'
       produces 'application/json'
 
-      response '204', 'successful sign out' do
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+      response '200', 'Logged out successfully' do
+        before do
+          post '/admins/sign_in', params: { admin: { email: admin_email, password: admin_password } }, as: :json
+          delete '/admins/sign_out', as: :json
         end
-      end
-    end
-  end
 
-  path '/admins/password/new' do
-    get 'New password reset page' do
-      tags 'Admin Authentication'
-      produces 'application/json'
-
-      response '200', 'password reset page' do
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-    end
-  end
-
-  path '/admins/password/edit' do
-    get 'Edit password page' do
-      tags 'Admin Authentication'
-      produces 'application/json'
-
-      response '200', 'edit password page' do
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+        it 'returns a success message' do
+          expect(response).to have_http_status(:ok)
+          json_response = JSON.parse(response.body)
+          expect(json_response['message']).to eq('Logged out successfully.')
         end
       end
     end
@@ -99,22 +91,38 @@ RSpec.describe 'Admin Authentication', type: :request do
       parameter name: :admin, in: :body, schema: {
         type: :object,
         properties: {
-          email: { type: :string, example: 'admin@admin.com' }
+          admin: {
+            type: :object,
+            properties: {
+              email: { type: :string, example: 'admin@example.com' }
+            },
+            required: ['email']
+          }
         },
-        required: ['email']
+        required: ['admin']
       }
 
       response '200', 'password reset email sent' do
-        let(:admin) { { email: 'admin@admin.com' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+        let(:reset_email) { { email: 'admin@example.com' } }
+
+        before { post '/admins/password', params: { admin: reset_email }, as: :json }
+
+        it 'returns a success message' do
+          expect(response).to have_http_status(:ok)
+          json_response = JSON.parse(response.body)
+          expect(json_response['message']).to eq('Reset password instructions sent')
         end
       end
 
       response '404', 'email not found' do
-        let(:admin) { { email: 'nonexistent@admin.com' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+        let(:nonexistent_email) { { email: 'nonexistentadmin@example.com' } }
+
+        before { post '/admins/password', params: { admin: nonexistent_email }, as: :json }
+
+        it 'returns an error message' do
+          expect(response).to have_http_status(:not_found)
+          json_response = JSON.parse(response.body)
+          expect(json_response['error']).to eq('Email not found')
         end
       end
     end
@@ -134,62 +142,35 @@ RSpec.describe 'Admin Authentication', type: :request do
       }
 
       response '200', 'password updated' do
-        let(:admin) { { reset_password_token: 'reset-token', password: 'newpassword', password_confirmation: 'newpassword' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+        let(:update_password) { { reset_password_token: 'reset-token', password: 'newpassword', password_confirmation: 'newpassword' } }
+
+        before { patch '/admins/password', params: { admin: update_password }, as: :json }
+
+        it 'returns a success message' do
+          skip 'Skipping test as it requires a valid reset password token'
+          expect(response).to have_http_status(:ok)
+          json_response = JSON.parse(response.body)
+          expect(json_response['message']).to eq('Password updated successfully')
         end
       end
 
       response '422', 'unprocessable entity' do
-        let(:admin) { { reset_password_token: 'reset-token', password: 'short', password_confirmation: 'mismatch' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-    end
+        let(:invalid_password_update) { { reset_password_token: 'reset-token', password: 'short', password_confirmation: 'mismatch' } }
 
-    put 'Update password' do
-      tags 'Admin Authentication'
-      consumes 'application/json'
-      produces 'application/json'
-      parameter name: :admin, in: :body, schema: {
-        type: :object,
-        properties: {
-          reset_password_token: { type: :string, example: 'reset-token' },
-          password: { type: :string, example: 'newpassword' },
-          password_confirmation: { type: :string, example: 'newpassword' }
-        },
-        required: ['reset_password_token', 'password', 'password_confirmation']
-      }
+        before { patch '/admins/password', params: { admin: invalid_password_update }, as: :json }
 
-      response '200', 'password updated' do
-        let(:admin) { { reset_password_token: 'reset-token', password: 'newpassword', password_confirmation: 'newpassword' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-
-      response '422', 'unprocessable entity' do
-        let(:admin) { { reset_password_token: 'reset-token', password: 'short', password_confirmation: 'mismatch' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+        it 'returns an error message' do
+          skip 'Skipping test as it requires a valid reset password token'
+          expect(response).to have_http_status(:unprocessable_entity)
+          json_response = JSON.parse(response.body)
+          expect(json_response['error']).to include('Password is too short')
+          expect(json_response['error']).to include("Password confirmation doesn't match Password")
         end
       end
     end
   end
 
-  path '/admins/sign_up' do
-    get 'New registration page' do
-      tags 'Admin Authentication'
-      produces 'application/json'
-
-      response '200', 'registration page' do
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-    end
-
+  path '/admins' do
     post 'Create admin' do
       tags 'Admin Authentication'
       consumes 'application/json'
@@ -197,121 +178,47 @@ RSpec.describe 'Admin Authentication', type: :request do
       parameter name: :admin, in: :body, schema: {
         type: :object,
         properties: {
-          email: { type: :string, example: 'newadmin@admin.com' },
-          password: { type: :string, example: 'password' },
-          password_confirmation: { type: :string, example: 'password' }
+          admin: {
+            type: :object,
+            properties: {
+              email: { type: :string, example: 'newadmin@example.com' },
+              password: { type: :string, example: 'password' },
+              password_confirmation: { type: :string, example: 'password' }
+            },
+            required: ['email', 'password', 'password_confirmation']
+          }
         },
-        required: ['email', 'password', 'password_confirmation']
+        required: ['admin']
       }
 
       response '201', 'successful registration' do
-        let(:admin) { { email: 'newadmin@example.com', password: 'password', password_confirmation: 'password' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+        let(:new_admin) { { email: 'newadmin@example.com', password: 'password', password_confirmation: 'password' } }
+
+        before { post '/admins', params: { admin: new_admin }, as: :json }
+
+        it 'returns a success message and admin details' do
+          expect(response).to have_http_status(:created)
+          json_response = JSON.parse(response.body)
+          expect(json_response['message']).to eq('Signed up successfully.')
+          expect(json_response['admin']['email']).to eq('newadmin@example.com')
         end
       end
 
       response '422', 'unprocessable entity' do
-        let(:admin) { { email: 'invalidemail', password: 'short', password_confirmation: 'different' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+        let(:invalid_registration) { { email: 'invalidemail', password: 'short', password_confirmation: 'different' } }
+
+        before { post '/admins', params: { admin: invalid_registration }, as: :json }
+
+        it 'returns error messages' do
+          expect(response).to have_http_status(:unprocessable_entity)
+          json_response = JSON.parse(response.body)
+          expect(json_response['error']).to include('Email is invalid')
+          expect(json_response['error']).to include("Password confirmation doesn't match Password")
+          expect(json_response['error']).to include('Password is too short')
         end
       end
     end
   end
 
-  path '/admins/cancel' do
-    get 'Cancel registration page' do
-      tags 'Admin Authentication'
-      produces 'application/json'
-
-      response '200', 'cancel registration page' do
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-    end
-  end
-
-  path '/admins/edit' do
-    get 'Edit registration page' do
-      tags 'Admin Authentication'
-      produces 'application/json'
-
-      response '200', 'edit registration page' do
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-    end
-
-    patch 'Update admin' do
-      tags 'Admin Authentication'
-      consumes 'application/json'
-      produces 'application/json'
-      parameter name: :admin, in: :body, schema: {
-        type: :object,
-        properties: {
-          email: { type: :string, example: 'updatedadmin@example.com' },
-          password: { type: :string, example: 'newpassword' },
-          password_confirmation: { type: :string, example: 'newpassword' }
-        },
-        required: ['email', 'password', 'password_confirmation']
-      }
-
-      response '200', 'admin updated' do
-        let(:admin) { { email: 'updatedadmin@example.com', password: 'newpassword', password_confirmation: 'newpassword' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-
-      response '422', 'unprocessable entity' do
-        let(:admin) { { email: 'invalidemail', password: 'short', password_confirmation: 'mismatch' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-    end
-
-    put 'Update admin' do
-      tags 'Admin Authentication'
-      consumes 'application/json'
-      produces 'application/json'
-      parameter name: :admin, in: :body, schema: {
-        type: :object,
-        properties: {
-          email: { type: :string, example: 'updatedadmin@example.com' },
-          password: { type: :string, example: 'newpassword' },
-          password_confirmation: { type: :string, example: 'newpassword' }
-        },
-        required: ['email', 'password', 'password_confirmation']
-      }
-
-      response '200', 'admin updated' do
-        let(:admin) { { email: 'updatedadmin@example.com', password: 'newpassword', password_confirmation: 'newpassword' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-
-      response '422', 'unprocessable entity' do
-        let(:admin) { { email: 'invalidemail', password: 'short', password_confirmation: 'mismatch' } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-    end
-
-    delete 'Delete admin' do
-      tags 'Admin Authentication'
-      produces 'application/json'
-
-      response '204', 'admin deleted' do
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-    end
-  end
+  Admin.delete(:admin)
 end

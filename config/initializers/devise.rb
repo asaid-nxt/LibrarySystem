@@ -312,4 +312,5 @@ Devise.setup do |config|
   # config.sign_in_after_change_password = true
 
   config.navigational_formats = []
+  config.skip_session_storage = [:http_auth, :token_auth]
 end

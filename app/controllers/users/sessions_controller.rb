@@ -3,9 +3,6 @@ class Users::SessionsController < Devise::SessionsController
 
   # POST /resource/sign_in
   def create
-    if user_signed_in?
-      render json: { message: "Logged in successfully.", user: current_user }, status: :ok
-    else
       user = User.find_for_authentication(email: params[:user][:email])
       if user && user.valid_password?(params[:user][:password])
         sign_in(user)
@@ -13,7 +10,6 @@ class Users::SessionsController < Devise::SessionsController
       else
         render json: { error: "Invalid email or password" }, status: :unauthorized
       end
-    end
   end
 
 
