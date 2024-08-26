@@ -3,9 +3,11 @@ Rails.application.routes.draw do
   sessions: 'admins/sessions',
   registrations: 'admins/registrations'
   }
+  
   devise_for :users, controllers: {
   sessions: 'users/sessions',
-  registrations: 'users/registrations'
+  registrations: 'users/registrations',
+  passwords: 'users/passwords'
   }
 
   root to: redirect('/api-docs')

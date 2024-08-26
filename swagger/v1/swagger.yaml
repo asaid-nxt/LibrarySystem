@@ -429,13 +429,6 @@ paths:
         '404':
           description: Book not found
   "/users/sign_in":
-    get:
-      summary: User Sign in page
-      tags:
-      - User Authentication
-      responses:
-        '200':
-          description: sign in page
     post:
       summary: User Sign in
       tags:
@@ -452,39 +445,28 @@ paths:
             schema:
               type: object
               properties:
-                email:
-                  type: string
-                  example: user@example.com
-                password:
-                  type: string
-                  example: password
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: user@example.com
+                    password:
+                      type: string
+                      example: password
+                  required:
+                  - email
+                  - password
               required:
-              - email
-              - password
+              - user
   "/users/sign_out":
     delete:
       summary: User Sign out
       tags:
       - User Authentication
       responses:
-        '204':
-          description: successful sign out
-  "/users/password/new":
-    get:
-      summary: New password reset page
-      tags:
-      - User Authentication
-      responses:
         '200':
-          description: password reset page
-  "/users/password/edit":
-    get:
-      summary: Edit password page
-      tags:
-      - User Authentication
-      responses:
-        '200':
-          description: edit password page
+          description: Logged out successfully
   "/users/password":
     post:
       summary: Send reset password instructions
@@ -502,11 +484,16 @@ paths:
             schema:
               type: object
               properties:
-                email:
-                  type: string
-                  example: user@example.com
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: user@example.com
+                  required:
+                  - email
               required:
-              - email
+              - user
     patch:
       summary: Update password
       tags:
@@ -536,43 +523,7 @@ paths:
               - reset_password_token
               - password
               - password_confirmation
-    put:
-      summary: Update password
-      tags:
-      - User Authentication
-      parameters: []
-      responses:
-        '200':
-          description: password updated
-        '422':
-          description: unprocessable entity
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reset_password_token:
-                  type: string
-                  example: reset-token
-                password:
-                  type: string
-                  example: newpassword
-                password_confirmation:
-                  type: string
-                  example: newpassword
-              required:
-              - reset_password_token
-              - password
-              - password_confirmation
-  "/users/sign_up":
-    get:
-      summary: New registration page
-      tags:
-      - User Authentication
-      responses:
-        '200':
-          description: registration page
+  "/users":
     post:
       summary: Create user
       tags:
@@ -589,71 +540,24 @@ paths:
             schema:
               type: object
               properties:
-                email:
-                  type: string
-                  example: newuser@example.com
-                password:
-                  type: string
-                  example: password
-                password_confirmation:
-                  type: string
-                  example: password
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: newuser@example.com
+                    password:
+                      type: string
+                      example: password
+                    password_confirmation:
+                      type: string
+                      example: password
+                  required:
+                  - email
+                  - password
+                  - password_confirmation
               required:
-              - email
-              - password
-              - password_confirmation
-  "/users/cancel":
-    get:
-      summary: Cancel registration page
-      tags:
-      - User Authentication
-      responses:
-        '200':
-          description: cancel registration page
-  "/users/edit":
-    get:
-      summary: Edit registration page
-      tags:
-      - User Authentication
-      responses:
-        '200':
-          description: edit registration page
-    patch:
-      summary: Update user
-      tags:
-      - User Authentication
-      parameters: []
-      responses:
-        '200':
-          description: user updated
-        '422':
-          description: unprocessable entity
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  example: updateduser@example.com
-                password:
-                  type: string
-                  example: newpassword
-                password_confirmation:
-                  type: string
-                  example: newpassword
-              required:
-              - email
-              - password
-              - password_confirmation
-    delete:
-      summary: Delete user
-      tags:
-      - User Authentication
-      responses:
-        '204':
-          description: user deleted
+              - user
 servers:
 - url: http://127.0.0.1:3000/
   variables:

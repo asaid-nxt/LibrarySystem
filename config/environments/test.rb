@@ -61,4 +61,8 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions
   config.action_controller.raise_on_missing_callback_actions = true
+
+
+  # Set the default URL options for the test environment
+  config.action_mailer.default_url_options = { host: 'example.com' }
 end
