@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  resources :borrowings
   devise_for :admins, controllers: {
   sessions: 'admins/sessions',
   registrations: 'admins/registrations'
@@ -13,13 +12,17 @@ Rails.application.routes.draw do
 
   mount Rswag::Ui::Engine => '/api-docs'
   mount Rswag::Api::Engine => '/api-docs'
-  resources :books
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  resources :books do
+    resources :borrowings, only: [:create] do
+      collection do
+        get :overdue
+      end
+      member do
+        patch :return
+      end
+    end
+  end
+
   get "up" => "rails/health#show", as: :rails_health_check
-
-  # Defines the root path route ("/")
-  # root "posts#index"
 end
