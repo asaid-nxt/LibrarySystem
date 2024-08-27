@@ -4,7 +4,10 @@ class BorrowingsController < ApplicationController
   def create
     book = Book.find(params[:book_id])
     if book.borrowable?
-      borrowing = current_user.borrowings.new(book: book, borrowed_at: Time.current, due_date: 2.weeks.from_now)
+      borrowed_at = params[:borrowed_at].present? ? Time.parse(params[:borrowed_at]) : Time.current
+      due_date = borrowed_at + 2.weeks
+
+      borrowing = current_user.borrowings.new(book: book, borrowed_at: borrowed_at, due_date: due_date)
 
       if borrowing.save
         book.borrow!
@@ -18,19 +21,20 @@ class BorrowingsController < ApplicationController
   end
 
 
+
   def return
     borrowing = current_user.borrowings.find_by(book_id: params[:book_id], returned_at: nil)
 
     if borrowing
       borrowing.update(returned_at: Time.current)
-      borrowing.book.return! # Increase available_copies
+      borrowing.book.return!
       render json: { message: 'Book returned successfully' }, status: :ok
     else
       render json: { error: 'Borrowing record not found or already returned' }, status: :not_found
     end
   end
 
-  
+
   def overdue
     overdue_books = current_user.borrowings.overdue
     render json: overdue_books, status: :ok
