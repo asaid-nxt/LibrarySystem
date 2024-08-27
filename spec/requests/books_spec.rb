@@ -82,6 +82,53 @@ RSpec.describe 'Books API', type: :request do
     end
 
 
+    path '/books/borrowed' do
+      get 'Retrieves all borrowed books (Authenticated Users Only)' do
+        tags 'Books'
+        produces 'application/json'
+        description 'Retrieves a list of all books that are currently borrowed by users along with their due dates. Only accessible by authenticated users.'
+
+        # Simulate user authentication
+        before do
+          sign_in user
+        end
+
+        response '200', 'Borrowed books found' do
+          schema type: :array,
+                 items: {
+                   type: :object,
+                   properties: {
+                     id: { type: :integer },
+                     title: { type: :string },
+                     author: { type: :string },
+                     genre: { type: :string },
+                     isbn: { type: :string },
+                     available_copies: { type: :integer },
+                     due_date: { type: :string, format: 'date-time' }
+                   },
+                   required: ['id', 'title', 'author', 'genre', 'isbn', 'due_date']
+                 }
+
+          let!(:book1) { Book.create!(title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 0) }
+          let!(:book2) { Book.create!(title: '1984', author: 'George Orwell', genre: 'Dystopian', isbn: '9780451524935', available_copies: 0) }
+          let!(:borrowing1) { Borrowing.create!(user: user, book: book1, borrowed_at: 2.days.ago, due_date: 5.days.from_now) }
+          let!(:borrowing2) { Borrowing.create!(user: user, book: book2, borrowed_at: 1.day.ago, due_date: 4.days.from_now) }
+
+          run_test!
+        end
+
+        response '401', 'Unauthorized (Unauthenticated user)' do
+          before do
+            sign_out user
+          end
+
+          run_test!
+        end
+      end
+    end
+
+
+
 
     post 'Creates a new book (Admin Only)' do
       tags 'Books'

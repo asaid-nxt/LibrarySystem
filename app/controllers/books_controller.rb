@@ -1,7 +1,7 @@
 class BooksController < ApplicationController
   before_action :set_book, only: [:update, :destroy, :show]
   before_action :authenticate_admin!, only: [:create, :update, :destroy]
-  before_action :authenticate_user!, only: [:show_available_books]
+  before_action :authenticate_user!, only: [:show_available_books, :show_borrowed_books]
 
   def index
     books = Book.by_genre(params[:genre])

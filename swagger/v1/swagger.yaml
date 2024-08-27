@@ -4,6 +4,136 @@ info:
   title: API V1
   version: v1
 paths:
+  "/admins/sign_in":
+    post:
+      summary: Admin Sign in
+      tags:
+      - Admin Authentication
+      parameters: []
+      responses:
+        '200':
+          description: successful sign in
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                admin:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: admin@example.com
+                    password:
+                      type: string
+                      example: password
+                  required:
+                  - email
+                  - password
+              required:
+              - admin
+  "/admins/sign_out":
+    delete:
+      summary: Admin Sign out
+      tags:
+      - Admin Authentication
+      responses:
+        '200':
+          description: Logged out successfully
+  "/admins/password":
+    post:
+      summary: Send reset password instructions
+      tags:
+      - Admin Authentication
+      parameters: []
+      responses:
+        '200':
+          description: password reset email sent
+        '404':
+          description: email not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                admin:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: admin@example.com
+                  required:
+                  - email
+              required:
+              - admin
+    patch:
+      summary: Update password
+      tags:
+      - Admin Authentication
+      parameters: []
+      responses:
+        '200':
+          description: password updated
+        '422':
+          description: unprocessable entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reset_password_token:
+                  type: string
+                  example: reset-token
+                password:
+                  type: string
+                  example: newpassword
+                password_confirmation:
+                  type: string
+                  example: newpassword
+              required:
+              - reset_password_token
+              - password
+              - password_confirmation
+  "/admins":
+    post:
+      summary: Create admin
+      tags:
+      - Admin Authentication
+      parameters: []
+      responses:
+        '201':
+          description: successful registration
+        '422':
+          description: unprocessable entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                admin:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: newadmin@example.com
+                    password:
+                      type: string
+                      example: password
+                    password_confirmation:
+                      type: string
+                      example: password
+                  required:
+                  - email
+                  - password
+                  - password_confirmation
+              required:
+              - admin
   "/books":
     get:
       summary: Retrieves all books, optionally filtered by genre
@@ -121,6 +251,47 @@ paths:
                   - available_copies
         '401':
           description: Unauthorized (Unauthenticated user)
+  "/books/borrowed":
+    get:
+      summary: Retrieves all borrowed books (Authenticated Users Only)
+      tags:
+      - Books
+      description: Retrieves a list of all books that are currently borrowed by users
+        along with their due dates. Only accessible by authenticated users.
+      responses:
+        '200':
+          description: Borrowed books found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    author:
+                      type: string
+                    genre:
+                      type: string
+                    isbn:
+                      type: string
+                    available_copies:
+                      type: integer
+                    due_date:
+                      type: string
+                      format: date-time
+                  required:
+                  - id
+                  - title
+                  - author
+                  - genre
+                  - isbn
+                  - due_date
+        '401':
+          description: Unauthorized (Unauthenticated user)
   "/books/{id}":
     parameters:
     - name: id
@@ -203,7 +374,6 @@ paths:
       summary: Deletes a specific book (Admin Only)
       tags:
       - Books
-      description: Deletes a specific book by its ID
       description: Deletes a specific book by its ID. Only accessible by admins.
       responses:
         '204':
@@ -403,136 +573,6 @@ paths:
                   - password_confirmation
               required:
               - user
-  "/admins/sign_in":
-    post:
-      summary: Admin Sign in
-      tags:
-      - Admin Authentication
-      parameters: []
-      responses:
-        '200':
-          description: successful sign in
-        '401':
-          description: unauthorized
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                admin:
-                  type: object
-                  properties:
-                    email:
-                      type: string
-                      example: admin@example.com
-                    password:
-                      type: string
-                      example: password
-                  required:
-                  - email
-                  - password
-              required:
-              - admin
-  "/admins/sign_out":
-    delete:
-      summary: Admin Sign out
-      tags:
-      - Admin Authentication
-      responses:
-        '200':
-          description: Logged out successfully
-  "/admins/password":
-    post:
-      summary: Send reset password instructions
-      tags:
-      - Admin Authentication
-      parameters: []
-      responses:
-        '200':
-          description: password reset email sent
-        '404':
-          description: email not found
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                admin:
-                  type: object
-                  properties:
-                    email:
-                      type: string
-                      example: admin@example.com
-                  required:
-                  - email
-              required:
-              - admin
-    patch:
-      summary: Update password
-      tags:
-      - Admin Authentication
-      parameters: []
-      responses:
-        '200':
-          description: password updated
-        '422':
-          description: unprocessable entity
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reset_password_token:
-                  type: string
-                  example: reset-token
-                password:
-                  type: string
-                  example: newpassword
-                password_confirmation:
-                  type: string
-                  example: newpassword
-              required:
-              - reset_password_token
-              - password
-              - password_confirmation
-  "/admins":
-    post:
-      summary: Create admin
-      tags:
-      - Admin Authentication
-      parameters: []
-      responses:
-        '201':
-          description: successful registration
-        '422':
-          description: unprocessable entity
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                admin:
-                  type: object
-                  properties:
-                    email:
-                      type: string
-                      example: newadmin@example.com
-                    password:
-                      type: string
-                      example: password
-                    password_confirmation:
-                      type: string
-                      example: password
-                  required:
-                  - email
-                  - password
-                  - password_confirmation
-              required:
-              - admin
 servers:
 - url: http://127.0.0.1:3000/
   variables:
