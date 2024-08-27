@@ -147,12 +147,12 @@ RSpec.describe 'User Authentication', type: :request do
       }
 
       response '200', 'password updated' do
-        let(:update_password) { { reset_password_token: 'reset-token', password: 'newpassword', password_confirmation: 'newpassword' } }
+        let(:reset_password_token) { user.send(:set_reset_password_token) }
+        let(:update_password) { { reset_password_token: reset_password_token, password: 'newpassword', password_confirmation: 'newpassword' } }
 
         before { patch '/users/password', params: { user: update_password }, as: :json }
 
         it 'returns a success message' do
-          skip 'Skipping test as it requires a valid reset password token'
           expect(response).to have_http_status(:ok)
           json_response = JSON.parse(response.body)
           expect(json_response['message']).to eq('Password updated successfully')
@@ -160,12 +160,12 @@ RSpec.describe 'User Authentication', type: :request do
       end
 
       response '422', 'unprocessable entity' do
-        let(:invalid_password_update) { { reset_password_token: 'reset-token', password: 'short', password_confirmation: 'mismatch' } }
+        let(:reset_password_token) { user.send(:set_reset_password_token) }
+        let(:invalid_password_update) { { reset_password_token: reset_password_token, password: 'short', password_confirmation: 'mismatch' } }
 
         before { patch '/users/password', params: { user: invalid_password_update }, as: :json }
 
         it 'returns an error message' do
-          skip 'Skipping test as it requires a valid reset password token'
           expect(response).to have_http_status(:unprocessable_entity)
           json_response = JSON.parse(response.body)
           expect(json_response['error']).to include('Password is too short')
