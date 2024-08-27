@@ -213,6 +213,44 @@ paths:
               - genre
               - isbn
               - available_copies
+  "/books/available":
+    get:
+      summary: Retrieves all available books (Authenticated Users Only)
+      tags:
+      - Books
+      description: Retrieves a list of all books that are currently available. Only
+        accessible by authenticated users.
+      responses:
+        '200':
+          description: Available books found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    author:
+                      type: string
+                    genre:
+                      type: string
+                    isbn:
+                      type: string
+                    available_copies:
+                      type: integer
+                  required:
+                  - id
+                  - title
+                  - author
+                  - genre
+                  - isbn
+                  - available_copies
+        '401':
+          description: Unauthorized (Unauthenticated user)
   "/books/{id}":
     parameters:
     - name: id
@@ -303,7 +341,7 @@ paths:
           description: Unauthorized (Non-admin user)
   "/books/{book_id}/borrowings":
     post:
-      summary: Borrow a book
+      summary: Borrow a book (Users only)
       tags:
       - Borrowings
       description: Creates a new borrowing record for the current user.
@@ -321,9 +359,21 @@ paths:
           description: Book not available for borrowing
         '401':
           description: Unauthorized borrowing attempt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                borrowed_at:
+                  type: string
+                  format: date-time
+                  example: '2023-08-27T14:30:00Z'
+              required:
+              - borrowed_at
   "/books/{book_id}/borrowings/return":
     patch:
-      summary: Return a borrowed book
+      summary: Return a borrowed book (Users only)
       tags:
       - Borrowings
       description: Marks a borrowing as returned for the current user.
@@ -343,7 +393,7 @@ paths:
           description: Unauthorized return attempt
   "/borrowings/overdue":
     get:
-      summary: Retrieves a list of overdue borrowings
+      summary: Retrieves a list of overdue borrowings (Users only)
       tags:
       - Borrowings
       description: Retrieves a list of all overdue borrowings for the current user.

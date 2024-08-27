@@ -3,6 +3,7 @@ require 'swagger_helper'
 RSpec.describe 'Books API', type: :request do
   # Assuming you have a method `authenticate_admin!` for admin authentication
   let!(:admin) { Admin.create!(email: 'admin@example.com', password: 'password123') }
+  let!(:user) { User.create!(email: 'user@example.com', password: 'password123') }
 
   # Simulate an admin being signed in for the tests that require admin privileges
   before(:each) do
@@ -36,6 +37,51 @@ RSpec.describe 'Books API', type: :request do
         run_test!
       end
     end
+
+
+    path '/books/available' do
+      get 'Retrieves all available books (Authenticated Users Only)' do
+        tags 'Books'
+        produces 'application/json'
+        description 'Retrieves a list of all books that are currently available. Only accessible by authenticated users.'
+
+        # Simulate user authentication
+        before do
+          sign_in user
+        end
+
+        response '200', 'Available books found' do
+          schema type: :array,
+                 items: {
+                   type: :object,
+                   properties: {
+                     id: { type: :integer },
+                     title: { type: :string },
+                     author: { type: :string },
+                     genre: { type: :string },
+                     isbn: { type: :string },
+                     available_copies: { type: :integer }
+                   },
+                   required: ['id', 'title', 'author', 'genre', 'isbn', 'available_copies']
+                 }
+
+          let!(:book1) { Book.create!(title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 10) }
+          let!(:book2) { Book.create!(title: '1984', author: 'George Orwell', genre: 'Dystopian', isbn: '9780451524935', available_copies: 5) }
+
+          run_test!
+        end
+
+        response '401', 'Unauthorized (Unauthenticated user)' do
+          before do
+            sign_out user
+          end
+
+          run_test!
+        end
+      end
+    end
+
+
 
     post 'Creates a new book (Admin Only)' do
       tags 'Books'
