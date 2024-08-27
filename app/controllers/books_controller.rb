@@ -1,31 +1,31 @@
 class BooksController < ApplicationController
-  before_action :set_book, only: [:edit, :update, :destroy, :show]
-  before_action :authenticate_admin!, only: [:create, :edit, :update, :destroy]
+  before_action :set_book, only: [:update, :destroy, :show]
+  before_action :authenticate_admin!, only: [:create, :update, :destroy]
+  before_action :authenticate_user!, only: [:show_available_books]
 
   def index
-    @books = Book.by_genre(params[:genre])
-    render json: @books
+    books = Book.by_genre(params[:genre])
+    render json: books
+  end
+
+  def show_available_books
+    available_books = Book.available
+    render json:available_books
   end
 
   def show
     render json: @book
   end
 
-  def new
-    @book = Book.new
-  end
 
   def create
-    @book = Book.new(book_params)
+    book = Book.new(book_params)
 
-    if @book.save
-      render json: @book, status: :created
+    if book.save
+      render json: book, status: :created
     else
-      render json: { errors: @book.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: book.errors.full_messages }, status: :unprocessable_entity
     end
-  end
-
-  def edit
   end
 
 
