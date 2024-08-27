@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   resources :books do
     collection do
       get 'available', to: 'books#show_available_books'
+      get 'borrowed', to: 'books#show_borrowed_books'
     end
     resources :borrowings, only: [:create] do
       patch :return, on: :collection

@@ -10,8 +10,15 @@ class BooksController < ApplicationController
 
   def show_available_books
     available_books = Book.available
-    render json:available_books
+    render json: available_books, each_serializer: BookSerializer
   end
+
+
+  def show_borrowed_books
+    borrowed_books = Book.borrowed.joins(:borrowings).where.not(borrowings: { returned_at: nil }).select('books.*, borrowings.due_date')
+    render json: borrowed_books, each_serializer: BorrowedBookSerializer
+  end
+
 
   def show
     render json: @book
