@@ -7,6 +7,11 @@ class BorrowingsController < ApplicationController
       borrowed_at = params[:borrowed_at].present? ? Time.parse(params[:borrowed_at]) : Time.current
       due_date = borrowed_at + 2.weeks
 
+      if current_user.borrowings.exists?(book: book)
+        render json: { error: 'You have already borrowed this book' }, status: :unprocessable_entity
+        return
+      end
+
       borrowing = current_user.borrowings.new(book: book, borrowed_at: borrowed_at, due_date: due_date)
 
       if borrowing.save
