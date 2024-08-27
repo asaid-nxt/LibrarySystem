@@ -1,18 +1,23 @@
 require 'swagger_helper'
 
 RSpec.describe 'Books API', type: :request do
-  path '/books' do
+  # Assuming you have a method `authenticate_admin!` for admin authentication
+  let!(:admin) { Admin.create!(email: 'admin@example.com', password: 'password123') }
 
+  # Simulate an admin being signed in for the tests that require admin privileges
+  before(:each) do
+    sign_in admin
+  end
+
+  path '/books' do
     get 'Retrieves all books, optionally filtered by genre' do
       tags 'Books'
       produces 'application/json'
       description 'Retrieves a list of all books. Optionally, you can filter by genre.'
 
-      # Query Parameter for filtering by genre
       parameter name: :genre, in: :query, type: :string, description: 'Filter books by genre'
 
       response '200', 'Books found' do
-        # Schema for the response
         schema type: :array,
                items: {
                  type: :object,
@@ -27,18 +32,16 @@ RSpec.describe 'Books API', type: :request do
                  required: ['id', 'title', 'author', 'genre', 'isbn', 'available_copies']
                }
 
-        let(:genre) { 'Fantasy' } # Example genre filter
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
+        let(:genre) { 'Fantasy' }
+        run_test!
       end
     end
 
-    post 'Creates a new book' do
+    post 'Creates a new book (Admin Only)' do
       tags 'Books'
       consumes 'application/json'
       produces 'application/json'
-      description 'Creates a new book entry.'
+      description 'Creates a new book entry. Only accessible by admins.'
 
       parameter name: :book, in: :body, schema: {
         type: :object,
@@ -54,16 +57,16 @@ RSpec.describe 'Books API', type: :request do
 
       response '201', 'Book created' do
         let(:book) { { title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 10 } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
+        run_test!
       end
 
-      response '422', 'Invalid request' do
-        let(:book) { { title: '', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 10 } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+      response '401', 'Unauthorized (Non-admin user)' do
+        before do
+          sign_out admin
         end
+
+        let(:book) { { title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 10 } }
+        run_test!
       end
     end
   end
@@ -89,24 +92,15 @@ RSpec.describe 'Books API', type: :request do
                required: ['id', 'title', 'author', 'genre', 'isbn', 'available_copies']
 
         let(:id) { Book.create!(title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 10).id }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
-      end
-
-      response '404', 'Book not found' do
-        let(:id) { 'invalid' }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
+        run_test!
       end
     end
 
-    patch 'Updates a specific book' do
+    patch 'Updates a specific book (Admin Only)' do
       tags 'Books'
       consumes 'application/json'
       produces 'application/json'
-      description 'Updates a specific book by its ID.'
+      description 'Updates a specific book by its ID. Only accessible by admins.'
 
       parameter name: :book, in: :body, schema: {
         type: :object,
@@ -123,37 +117,37 @@ RSpec.describe 'Books API', type: :request do
       response '200', 'Book updated' do
         let(:id) { Book.create!(title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 10).id }
         let(:book) { { title: 'The Great Gatsby Updated', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 15 } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
+        run_test!
       end
 
-      response '422', 'Invalid request' do
-        let(:id) { Book.create!(title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 10).id }
-        let(:book) { { title: '', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 10 } }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+      response '401', 'Unauthorized (Non-admin user)' do
+        before do
+          sign_out admin
         end
+
+        let(:id) { Book.create!(title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 10).id }
+        let(:book) { { title: 'The Great Gatsby Updated', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 15 } }
+        run_test!
       end
     end
 
-    delete 'Deletes a specific book' do
+    delete 'Deletes a specific book (Admin Only)' do
       tags 'Books'
       produces 'application/json'
-      description 'Deletes a specific book by its ID.'
+      description 'Deletes a specific book by its ID. Only accessible by admins.'
 
       response '204', 'Book deleted' do
         let(:id) { Book.create!(title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 10).id }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
-        end
+        run_test!
       end
 
-      response '404', 'Book not found' do
-        let(:id) { 'invalid' }
-        skip 'Skipping test execution, but generating docs' do
-          run_test!
+      response '401', 'Unauthorized (Non-admin user)' do
+        before do
+          sign_out admin
         end
+
+        let(:id) { Book.create!(title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Novel', isbn: '9780743273565', available_copies: 10).id }
+        run_test!
       end
     end
   end

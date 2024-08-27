@@ -176,16 +176,16 @@ paths:
                   - isbn
                   - available_copies
     post:
-      summary: Creates a new book
+      summary: Creates a new book (Admin Only)
       tags:
       - Books
-      description: Creates a new book entry.
+      description: Creates a new book entry. Only accessible by admins.
       parameters: []
       responses:
         '201':
           description: Book created
-        '422':
-          description: Invalid request
+        '401':
+          description: Unauthorized (Non-admin user)
       requestBody:
         content:
           application/json:
@@ -253,19 +253,17 @@ paths:
                 - genre
                 - isbn
                 - available_copies
-        '404':
-          description: Book not found
     patch:
-      summary: Updates a specific book
+      summary: Updates a specific book (Admin Only)
       tags:
       - Books
-      description: Updates a specific book by its ID.
+      description: Updates a specific book by its ID. Only accessible by admins.
       parameters: []
       responses:
         '200':
           description: Book updated
-        '422':
-          description: Invalid request
+        '401':
+          description: Unauthorized (Non-admin user)
       requestBody:
         content:
           application/json:
@@ -294,15 +292,66 @@ paths:
               - isbn
               - available_copies
     delete:
-      summary: Deletes a specific book
+      summary: Deletes a specific book (Admin Only)
       tags:
       - Books
-      description: Deletes a specific book by its ID.
+      description: Deletes a specific book by its ID. Only accessible by admins.
       responses:
         '204':
           description: Book deleted
+        '401':
+          description: Unauthorized (Non-admin user)
+  "/books/{book_id}/borrowings":
+    post:
+      summary: Borrow a book
+      tags:
+      - Borrowings
+      description: Creates a new borrowing record for the current user.
+      parameters:
+      - name: book_id
+        in: path
+        description: ID of the book to be borrowed
+        required: true
+        schema:
+          type: integer
+      responses:
+        '201':
+          description: Borrowing created
+        '422':
+          description: Book not available for borrowing
+        '401':
+          description: Unauthorized borrowing attempt
+  "/books/{book_id}/borrowings/return":
+    patch:
+      summary: Return a borrowed book
+      tags:
+      - Borrowings
+      description: Marks a borrowing as returned for the current user.
+      parameters:
+      - name: book_id
+        in: path
+        description: ID of the book being returned
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Book returned successfully
         '404':
-          description: Book not found
+          description: Borrowing record not found
+        '401':
+          description: Unauthorized return attempt
+  "/borrowings/overdue":
+    get:
+      summary: Retrieves a list of overdue borrowings
+      tags:
+      - Borrowings
+      description: Retrieves a list of all overdue borrowings for the current user.
+      responses:
+        '200':
+          description: No overdue borrowings found
+        '401':
+          description: Unauthorized
   "/users/sign_in":
     post:
       summary: User Sign in
