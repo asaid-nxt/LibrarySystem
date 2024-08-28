@@ -47,7 +47,7 @@ class BorrowingsController < ApplicationController
 
 
   def user
-    borrowings = current_user.borrowings.includes(:book)
+    borrowings = current_user.borrowed_books
     render json: borrowings, each_serializer: BorrowingSerializer
   end
 
