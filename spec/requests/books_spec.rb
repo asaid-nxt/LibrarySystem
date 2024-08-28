@@ -17,26 +17,49 @@ RSpec.describe 'Books API', type: :request do
       description 'Retrieves a list of all books. Optionally, you can filter by genre.'
 
       parameter name: :genre, in: :query, type: :string, description: 'Filter books by genre'
+      parameter name: :page, in: :query, type: :integer, description: 'Page number for pagination'
+      parameter name: :per_page, in: :query, type: :integer, description: 'Number of books per page'
 
       response '200', 'Books found' do
-        schema type: :array,
-               items: {
-                 type: :object,
-                 properties: {
-                   id: { type: :integer },
-                   title: { type: :string },
-                   author: { type: :string },
-                   genre: { type: :string },
-                   isbn: { type: :string },
-                   available_copies: { type: :integer }
+        schema type: :object,
+               properties: {
+                 books: {
+                   type: :array,
+                   items: {
+                     type: :object,
+                     properties: {
+                       id: { type: :integer },
+                       title: { type: :string },
+                       author: { type: :string },
+                       genre: { type: :string },
+                       isbn: { type: :string },
+                       available_copies: { type: :integer }
+                     },
+                     required: ['id', 'title', 'author', 'genre', 'isbn', 'available_copies']
+                   }
                  },
-                 required: ['id', 'title', 'author', 'genre', 'isbn', 'available_copies']
-               }
+                 meta: {
+                   type: :object,
+                   properties: {
+                     current_page: { type: :integer },
+                     next_page: { type: :integer, nullable: true },
+                     prev_page: { type: :integer, nullable: true },
+                     total_pages: { type: :integer },
+                     total_count: { type: :integer }
+                   },
+                   required: ['current_page', 'total_pages', 'total_count']
+                 }
+               },
+               required: ['books', 'meta']
 
         let(:genre) { 'Fantasy' }
+        let(:page) { 1 }
+        let(:per_page) { 10 }
+
         run_test!
       end
     end
+
 
 
     path '/books/available' do
