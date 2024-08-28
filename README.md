@@ -6,7 +6,7 @@ This document provides comprehensive details about your Library System API built
 
 **Overview:**
 
-- The system consists of a Rails API backend and potentially a frontend application (not included in this documentation).
+- The system consists of a Rails API backend.
 - Users (regular users and admins) interact with the system through API endpoints.
 - The API interacts with a database to store information about books, users, borrowings, and other relevant data.
 
