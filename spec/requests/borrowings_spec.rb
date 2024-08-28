@@ -141,4 +141,34 @@ RSpec.describe 'Borrowings API', type: :request do
       end
     end
   end
+
+
+  path '/borrowings/user' do
+    get 'Retrives a list of user borrowings (User only)' do
+      tags 'Borrowings'
+      produces 'application/json'
+      description 'Retrieves a list of all borrowings for the current user.'
+
+      response '200', 'Borrowed books found' do
+        before do
+          user.borrowings.create!(book: book, borrowed_at: Time.now, due_date: 2.weeks.from_now)
+          sign_in user
+        end
+        run_test!
+      end
+
+      response '200', 'No borrowed books found' do
+        before { sign_in user }
+
+        run_test!
+      end
+
+      response '401', 'Unauthorized' do
+        it 'returns an unauthorized error' do
+          get "/borrowings/user", headers: { 'ACCEPT' => 'application/json' }
+          expect(response).to have_http_status(:unauthorized)
+        end
+      end
+    end
+  end
 end

@@ -443,6 +443,17 @@ paths:
           description: No overdue borrowings found
         '401':
           description: Unauthorized
+  "/borrowings/user":
+    get:
+      summary: Retrives a list of user borrowings (User only)
+      tags:
+      - Borrowings
+      description: Retrieves a list of all borrowings for the current user.
+      responses:
+        '200':
+          description: No borrowed books found
+        '401':
+          description: Unauthorized
   "/users/sign_in":
     post:
       summary: User Sign in

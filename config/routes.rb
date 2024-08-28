@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   resources :borrowings, only: [] do
     collection do
       get :overdue
+      get :user
     end
   end
 
