@@ -40,12 +40,12 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ]
   gem 'rspec-rails'
   gem 'factory_bot_rails', '~> 6.4', '>= 6.4.3'
+  gem 'shoulda-matchers', '~> 6.4'
 end
 
 group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
-  gem 'factory_bot_rails', '~> 6.4', '>= 6.4.3'
 end
 
 gem 'rswag', '~> 2.14'
