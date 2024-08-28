@@ -4,8 +4,8 @@ class BooksController < ApplicationController
   before_action :authenticate_user!, only: [:show_available_books, :show_borrowed_books]
 
   def index
-    books = Book.by_genre(params[:genre])
-    render json: books
+    books = Book.by_genre(params[:genre]).page(params[:page]).per(params[:per_page] || 10)
+    render json: books, meta: pagination_meta(books), adapter: :json
   end
 
   def show_available_books
@@ -62,6 +62,16 @@ class BooksController < ApplicationController
 
   def book_params
     params.require(:book).permit(:title, :author, :genre, :isbn, :available_copies)
+  end
+
+  def pagination_meta(books)
+    {
+      current_page: books.current_page,
+      next_page: books.next_page,
+      prev_page: books.prev_page,
+      total_pages: books.total_pages,
+      total_count: books.total_count
+    }
   end
 
 end
