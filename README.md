@@ -1,6 +1,6 @@
 ## Library System API Documentation
 
-This document provides comprehensive details about your Library System API built with Rails 7.
+This document provides comprehensive details about the Library System API built with Rails 7.
 
 **1. System Architecture**
 
@@ -20,7 +20,7 @@ This document provides comprehensive details about your Library System API built
 **Technology Stack:**
 
 - **Backend:** Rails 7
-- **Database:** PostgreSQL (based on schema file)
+- **Database:** PostgreSQL
 - **Testing:** RSpec
 - **API Documentation:** RSwag (for generating OpenAPI spec)
 - **Authentication:** Devise
