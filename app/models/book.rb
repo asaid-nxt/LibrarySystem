@@ -2,6 +2,7 @@ class Book < ApplicationRecord
   has_many :borrowings
 
   validates :title, :author, :genre, :isbn, :available_copies, presence: true
+  validates :title, uniqueness: { case_sensitive: false }
 
   scope :by_genre, ->(genre) {where("genre ILIKE ?", genre) if genre.present?}
   scope :available, -> { where('available_copies > 0') }
