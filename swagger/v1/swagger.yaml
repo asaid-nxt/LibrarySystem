@@ -146,35 +146,70 @@ paths:
         description: Filter books by genre
         schema:
           type: string
+      - name: page
+        in: query
+        description: Page number for pagination
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        description: Number of books per page
+        schema:
+          type: integer
       responses:
         '200':
           description: Books found
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    title:
-                      type: string
-                    author:
-                      type: string
-                    genre:
-                      type: string
-                    isbn:
-                      type: string
-                    available_copies:
-                      type: integer
-                  required:
-                  - id
-                  - title
-                  - author
-                  - genre
-                  - isbn
-                  - available_copies
+                type: object
+                properties:
+                  books:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        title:
+                          type: string
+                        author:
+                          type: string
+                        genre:
+                          type: string
+                        isbn:
+                          type: string
+                        available_copies:
+                          type: integer
+                      required:
+                      - id
+                      - title
+                      - author
+                      - genre
+                      - isbn
+                      - available_copies
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      next_page:
+                        type: integer
+                        nullable: true
+                      prev_page:
+                        type: integer
+                        nullable: true
+                      total_pages:
+                        type: integer
+                      total_count:
+                        type: integer
+                    required:
+                    - current_page
+                    - total_pages
+                    - total_count
+                required:
+                - books
+                - meta
     post:
       summary: Creates a new book (Admin Only)
       tags:
